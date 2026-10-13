@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root,
+  html {
+    color-scheme: light !important;
+  }
+
+  body {
+    background-color: #edf0f7;
+    color: #0f172a;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  select,
+  input,
+  textarea {
+    color-scheme: light !important;
+    color: #0f172a;
+  }
+
+  select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 13px;
+    font-weight: 500;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #edf0f7;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #bf0c4e;
+}
+
+.ribbon-slant {
+  clip-path: polygon(18px 0, 100% 0, 100% 100%, 0 100%);
+}
