@@ -200,11 +200,14 @@ def test_kapila_bhavanam_pg_scholar_restriction(client):
     # Kapila must NOT be in eligible list for B.Tech student
     assert 'Kapila Bhavanam' not in [h['name'] for h in h_data1]
 
+    myt = Hostel.query.filter_by(code='MYT').first()
+
     # Attempt to submit application for Kapila as B.Tech student
     bad_app = client.post('/api/student/application', headers={'Authorization': f'Bearer {t1}'}, json={
         'roommate_mode': 'none',
         'preferences': [
-            {'hostel_id': kapila.id, 'sharing_type': 1, 'floor': 1, 'flex_floor': True}
+            {'hostel_id': kapila.id, 'sharing_type': 1, 'floor': 1, 'flex_floor': True},
+            {'hostel_id': myt.id, 'sharing_type': 2, 'floor': 1, 'flex_floor': True}
         ]
     })
     assert bad_app.status_code == 400
@@ -221,7 +224,8 @@ def test_kapila_bhavanam_pg_scholar_restriction(client):
     good_app = client.post('/api/student/application', headers={'Authorization': f'Bearer {t3}'}, json={
         'roommate_mode': 'none',
         'preferences': [
-            {'hostel_id': kapila.id, 'sharing_type': 1, 'floor': 1, 'flex_floor': True}
+            {'hostel_id': kapila.id, 'sharing_type': 1, 'floor': 1, 'flex_floor': True},
+            {'hostel_id': myt.id, 'sharing_type': 2, 'floor': 1, 'flex_floor': True}
         ]
     })
     assert good_app.status_code == 201

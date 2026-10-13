@@ -127,11 +127,15 @@ def test_cancel_application_and_reapply(client):
     headers = {'Authorization': f'Bearer {token}'}
 
     mythreyi = Hostel.query.filter_by(code='MYT').first()
+    gargi = Hostel.query.filter_by(code='GAR').first()
 
     # Initial submission
     res1 = client.post('/api/student/application', headers=headers, json={
         'roommate_mode': 'none',
-        'preferences': [{'hostel_id': mythreyi.id, 'sharing_type': 2}]
+        'preferences': [
+            {'hostel_id': mythreyi.id, 'sharing_type': 2},
+            {'hostel_id': gargi.id, 'sharing_type': 3}
+        ]
     })
     assert res1.status_code == 201
     reg1 = res1.get_json()['registration_number']
@@ -148,7 +152,10 @@ def test_cancel_application_and_reapply(client):
     # Book again / reapply
     res_reapply = client.post('/api/student/application', headers=headers, json={
         'roommate_mode': 'none',
-        'preferences': [{'hostel_id': mythreyi.id, 'sharing_type': 4}]
+        'preferences': [
+            {'hostel_id': mythreyi.id, 'sharing_type': 4},
+            {'hostel_id': gargi.id, 'sharing_type': 3}
+        ]
     })
     assert res_reapply.status_code == 201
     reg2 = res_reapply.get_json()['registration_number']

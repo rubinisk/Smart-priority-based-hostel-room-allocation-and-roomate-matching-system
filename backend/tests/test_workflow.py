@@ -32,11 +32,13 @@ def test_full_booking_invitation_lifecycle(client):
 
     # 2. Submit application with roommate invite to CB.SC.U4CSE24002 (Female)
     ananya = Hostel.query.filter_by(code='MYT').first()
+    varnika = Hostel.query.filter_by(code='GAR').first()
     res_app = client.post('/api/student/application', headers={'Authorization': f'Bearer {token1}'}, json={
         'roommate_mode': 'group',
         'friend_rolls': ['CB.SC.U4CSE24002'],
         'preferences': [
-            {'hostel_id': ananya.id, 'sharing_type': 2}
+            {'hostel_id': ananya.id, 'sharing_type': 2},
+            {'hostel_id': varnika.id, 'sharing_type': 3}
         ],
         'preferred_floor': 1,
         'flex_floor': True
@@ -68,13 +70,17 @@ def test_gender_mismatch_invite_rejected(client):
     token1 = l1.get_json()['access_token']
 
     ananya = Hostel.query.filter_by(code='MYT').first()
+    varnika = Hostel.query.filter_by(code='GAR').first()
     res = client.post('/api/student/application', headers={'Authorization': f'Bearer {token1}'}, json={
         'roommate_mode': 'group',
         'friend_rolls': ['CB.SC.U4CSE24003'],
-        'preferences': [{'hostel_id': ananya.id, 'sharing_type': 2}]
+        'preferences': [
+            {'hostel_id': ananya.id, 'sharing_type': 2},
+            {'hostel_id': varnika.id, 'sharing_type': 3}
+        ]
     })
     assert res.status_code == 400
-    assert 'does not match your category' in res.get_json()['error']
+    assert 'Cross-gender roommate pairing is not permitted' in res.get_json()['error']
 
 def test_sharing_capacity_smaller_than_group_rejected(client):
     # Group of 3 trying to choose 2-sharing room -> Must be rejected!
@@ -82,10 +88,14 @@ def test_sharing_capacity_smaller_than_group_rejected(client):
     token1 = l1.get_json()['access_token']
 
     ananya = Hostel.query.filter_by(code='MYT').first()
+    varnika = Hostel.query.filter_by(code='GAR').first()
     res = client.post('/api/student/application', headers={'Authorization': f'Bearer {token1}'}, json={
         'roommate_mode': 'group',
         'friend_rolls': ['CB.SC.U4CSE24002', 'CB.SC.P2CSE25001'], # 3 members
-        'preferences': [{'hostel_id': ananya.id, 'sharing_type': 2}] # 2-sharing cannot fit 3 members!
+        'preferences': [
+            {'hostel_id': ananya.id, 'sharing_type': 2}, # 2-sharing cannot fit 3 members!
+            {'hostel_id': varnika.id, 'sharing_type': 2}
+        ]
     })
     assert res.status_code == 400
     assert 'cannot fit your group of 3' in res.get_json()['error']

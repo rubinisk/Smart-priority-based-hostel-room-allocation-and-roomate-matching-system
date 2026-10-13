@@ -221,10 +221,12 @@ def test_10_allotted_room_cannot_be_modified_or_cancelled(client):
     user_id = login_res.get_json()['user']['id']
 
     myt = Hostel.query.filter_by(code='MYT').first()
+    gar = Hostel.query.filter_by(code='GAR').first()
     app_res = client.post('/api/student/application', headers={'Authorization': f'Bearer {token}'}, json={
         'roommate_mode': 'none',
         'preferences': [
-            {'hostel_id': myt.id, 'sharing_type': 2, 'floor': 1, 'flex_floor': True}
+            {'hostel_id': myt.id, 'sharing_type': 2, 'floor': 1, 'flex_floor': True},
+            {'hostel_id': gar.id, 'sharing_type': 3, 'floor': 1, 'flex_floor': True}
         ]
     })
     assert app_res.status_code == 201
@@ -235,7 +237,8 @@ def test_10_allotted_room_cannot_be_modified_or_cancelled(client):
     # Student can modify while submitted
     mod_ok = client.put('/api/student/application', headers={'Authorization': f'Bearer {token}'}, json={
         'preferences': [
-            {'hostel_id': myt.id, 'sharing_type': 2, 'floor': 2, 'flex_floor': True}
+            {'hostel_id': myt.id, 'sharing_type': 2, 'floor': 2, 'flex_floor': True},
+            {'hostel_id': gar.id, 'sharing_type': 3, 'floor': 1, 'flex_floor': True}
         ]
     })
     assert mod_ok.status_code == 200
