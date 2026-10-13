@@ -1,11 +1,10 @@
 services:
   - type: web
-    name: staywise-backend
-    env: python
+    name: staywise
+    env: docker
     region: singapore
     plan: free
-    buildCommand: "pip install -r backend/requirements.txt"
-    startCommand: "cd backend && gunicorn app:app"
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: FLASK_ENV
         value: production

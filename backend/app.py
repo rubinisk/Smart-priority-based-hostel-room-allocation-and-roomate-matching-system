@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
@@ -9,7 +9,13 @@ from routes.student_routes import student_bp
 from routes.admin_routes import admin_bp
 from routes.payment_routes import payment_bp
 
-app = Flask(__name__)
+# Locate frontend dist folder (supports both local and Docker container layouts)
+frontend_dist = os.environ.get(
+    'FRONTEND_DIST',
+    os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist'))
+)
+
+app = Flask(__name__, static_folder=frontend_dist if os.path.exists(frontend_dist) else None)
 app.config.from_object(Config)
 
 # Enable CORS for all routes and origins
@@ -41,6 +47,24 @@ app.register_blueprint(payment_bp)
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'healthy', 'system': 'StayWise Smart Hostel Booking System API', 'version': '1.0.0'}), 200
+
+# Serve React Frontend SPA routes
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    if path.startswith('api/'):
+        return jsonify({'error': 'Endpoint not found'}), 404
+    file_path = os.path.join(frontend_dist, path)
+    if path != "" and os.path.exists(file_path):
+        return send_from_directory(frontend_dist, path)
+    index_file = os.path.join(frontend_dist, 'index.html')
+    if os.path.exists(index_file):
+        return send_from_directory(frontend_dist, 'index.html')
+    return jsonify({
+        'status': 'StayWise API Server is running',
+        'health_check': '/api/health',
+        'note': 'Frontend dist directory not found.'
+    }), 200
 
 # Auto-initialize and seed database on startup (for both gunicorn and direct python)
 with app.app_context():
