@@ -119,3 +119,26 @@ python -m pytest backend/tests
 - `test_auth.py`: Password hashing, roll number normalization, student lookup.
 - `test_workflow.py`: Full invitation lifecycle, gender mismatch rejection, capacity validation.
 - **Results**: **15 passed out of 15 tests (100% pass rate)**.
+
+---
+
+## 7. Deployment Guide
+
+### Deploying the Frontend to Vercel
+1. Go to [Vercel](https://vercel.com) and click **"Add New" > "Project"**.
+2. Select your repository: `rubinisk/Smart-priority-based-hostel-room-allocation-and-roomate-matching-system`.
+3. Configure the Project Settings:
+   - **Framework Preset**: Vite
+   - **Root Directory**: `.` (Root) or `frontend`
+   - If Root Directory is `.` (default): The included root `vercel.json` will automatically build `frontend` and serve `frontend/dist`.
+   - If Root Directory is set to `frontend`: `frontend/vercel.json` handles all client-side routing rewrites.
+4. Set Environment Variables in Vercel:
+   - `VITE_API_BASE_URL`: URL of your deployed Python Flask backend (e.g. `https://your-staywise-backend.onrender.com/api` or `https://your-api.railway.app/api`).
+5. Click **Deploy**. Vercel will build and publish the live React web application with a free SSL domain.
+
+### Deploying the Backend (Render / Railway / Fly.io / PythonAnywhere)
+1. Push this repository to GitHub.
+2. Create a new Web Service pointing to `backend/`.
+3. Set Build Command: `pip install -r requirements.txt`
+4. Set Start Command: `gunicorn app:app` or `python app.py`
+5. Seed initial data: Run `python seed.py` once to populate hostels, rooms, and students.
