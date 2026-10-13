@@ -12,8 +12,8 @@ from routes.payment_routes import payment_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Enable CORS for frontend
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# Enable CORS for all routes and origins
+CORS(app, resources={r"/api/*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Origin"]}}, supports_credentials=True)
 
 # Initialize extensions
 db.init_app(app)
@@ -42,13 +42,17 @@ app.register_blueprint(payment_bp)
 def health_check():
     return jsonify({'status': 'healthy', 'system': 'StayWise Smart Hostel Booking System API', 'version': '1.0.0'}), 200
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        # Seed if empty database
+# Auto-initialize and seed database on startup (for both gunicorn and direct python)
+with app.app_context():
+    db.create_all()
+    try:
         from seed import seed_database
         from models import User
         if not User.query.first():
             seed_database()
+    except Exception as e:
+        print(f"Startup DB check note: {e}")
 
-    app.run(host='0.0.0.0', port=5001, debug=True)
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5001))
+    app.run(host='0.0.0.0', port=port, debug=True)
